@@ -1,0 +1,43 @@
+---
+- name: Deploy Autofs Clients
+  hosts: clients
+  become: yes
+  vars:
+    autofs_indirect_maps:
+      - name: "auto.nfs-nas"
+        path: "/mnt/nfs"
+        mark: "nfs mounts from NAS"
+        options: "--timeout=30 --ghost"
+        mounts:
+          - name: "movies"
+            fstype: "nfs,rw,bg,hard,intr,tcp,resvport"
+            url: "192.168.60.5:/home/public"
+          - name: "tv"
+            fstype: "nfs,rw,bg,hard,intr,tcp,resvport"
+            url: "192.168.60.5:/home/public2"
+  pre_tasks:
+
+     #change vagrant group, conflicts with slurm
+    - name: "Change Centos & Vagrant User Group ID"
+      group:
+        name: "{{ item.group }}"
+        gid: "{{ item.gid }}"
+        state: present
+      with_items:
+        - { gid: 9500, group: centos }
+        - { gid: 9600, group: vagrant }
+
+    - name: Install Epel
+      yum:
+        name:
+          - epel-release
+        state: latest
+        update_cache: yes
+
+  tasks:
+
+    - import_tasks: "tasks/main.yml"
+
+    - name: Reboot Node
+      reboot:
+        reboot_timeout: 3600

@@ -1,0 +1,46 @@
+---
+- name: Deploy Nfs Node
+  hosts: nfs
+  become: yes
+  vars:
+    nfs_exports: ["/home/public *(rw,sync)","/home/public2 *(rw,sync)"]
+    nfs_rpcbind_state: started
+    nfs_rpcbind_enabled: true
+  pre_tasks:
+
+     #change vagrant group, conflicts with slurm
+    - name: "Change Centos & Vagrant User Group ID"
+      group:
+        name: "{{ item.group }}"
+        gid: "{{ item.gid }}"
+        state: present
+      with_items:
+        - { gid: 9500, group: centos }
+        - { gid: 9600, group: vagrant }
+
+    - name: Install Epel
+      yum:
+        name:
+          - epel-release
+        state: latest
+        update_cache: yes
+
+  roles:
+    - role: ansible-role-nfs
+  tasks:
+
+    - name: Creating Test Files In Exports
+      copy:
+        dest: "/home/{{ item }}"
+        content: "Test file"
+      with_items:
+        - "/public/movies1.txt"
+        - "/public/movies2.txt"
+        - "/public/movies3.txt"
+        - "/public2/tv4.txt"
+        - "/public2/tv5.txt"
+        - "/public2/tv6.txt"
+
+    - name: Reboot Node
+      reboot:
+        reboot_timeout: 3600

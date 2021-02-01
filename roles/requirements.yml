@@ -1,0 +1,27 @@
+---
+collections:
+
+  - name: https://github.com/ansible-collections/ansible.posix.git
+    type: git
+    version: main
+
+  - name: https://github.com/ansible-collections/community.general.git
+    type: git
+    version: main
+
+roles:
+
+  - src: git@github.com:gsuresearch/ansible-role-users.git
+    version: master
+    scm: git
+    name: ansible-role-users
+
+  - src: git@github.com:gsuresearch/ansible-role-autofs.git
+    version: master
+    scm: git
+    name: ansible-role-autofs
+
+  - src: https://github.com/geerlingguy/ansible-role-nfs.git
+    version: master
+    scm: git
+    name: ansible-role-nfs
