@@ -3,7 +3,7 @@
   hosts: nfs
   become: yes
   vars:
-    nfs_exports: ["/cephfs *(rw,sync)","/cephfs/ezbld *(rw,sync)","/cephfs/iRod_Test *(rw,sync)","/cephfs/Repo_Temp *(rw,sync)","/cephfs/users nfs4 *(default,acl) 0 0"]
+    nfs_exports: ["/cephfs *(rw,sync)","/cephfs/ezbld *(rw,sync)","/cephfs/iRod_Test *(rw,sync)","/cephfs/Repo_Temp *(rw,sync)","/cephfs/users *(rw,sync)"]
     nfs_rpcbind_state: started
     nfs_rpcbind_enabled: true
   pre_tasks:
@@ -18,6 +18,13 @@
         - { gid: 9500, group: centos }
         - { gid: 9600, group: vagrant }
 
+    - name: Install Epel
+      yum:
+        name:
+          - epel-release
+        state: latest
+        update_cache: yes
+
   roles:
     - role: ansible-role-nfs
   tasks:
@@ -27,10 +34,7 @@
         dest: "{{ item.file }}"
         content: "{{ item.msg }}"
       with_items:
-        - { file: "/cephfs/ezbld/Anderson-Silva.txt", msg: "Middleweight" }
-        - { file: "/cephfs/iRod_Test/Michael-Page.txt", msg: "Middleweight" }
-        - { file: "/cephfs/Repo_Temp/Stipe-Miocic.txt", msg: "Heavyweight" }
-        - { file: "/cephfs/users/Israel-Adesanya.txt", msg: "Middleweight" }
+        - { file: "/cephfs/.txt", msg: "" },
 
     - name: Reboot Node
       reboot:

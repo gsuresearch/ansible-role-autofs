@@ -3,18 +3,36 @@
   hosts: clients
   become: yes
   vars:
+    # --- OS setup ---
+    # Shouldn't need to modify
+    autofs_pkgs:
+      Linux: [ 'autofs' ]
+      Darwin: []
+
+    # --- OS config ---
+    # Shouldn't need to modify
+    autofs_master:
+      Linux: "/etc/auto.master"
+      Darwin: "/etc/auto_master"
+
     autofs_indirect_maps:
       - name: "auto.nfs-nas"
         path: "/mnt/nfs"
         mark: "nfs mounts from NAS"
         options: "--timeout=30 --ghost"
         mounts:
-          - name: "movies"
+          - name: "fighters1"
             fstype: "nfs,rw,bg,hard,intr,tcp,resvport"
-            url: "192.168.60.5:/home/public"
-          - name: "tv"
+            url: "192.168.60.5:/cephfs/ezbld"
+          - name: "fighters2"
             fstype: "nfs,rw,bg,hard,intr,tcp,resvport"
-            url: "192.168.60.5:/home/public2"
+            url: "192.168.60.5:/cephfs/iRod_Test"
+          - name: "fighters3"
+            fstype: "nfs,rw,bg,hard,intr,tcp,resvport"
+            url: "192.168.60.5:/cephfs/Repo_Temp"
+          - name: "fighters4"
+            fstype: "nfs,rw,bg,hard,intr,tcp,resvport"
+            url: "192.168.60.5:/cephfs/users"
   pre_tasks:
 
      #change vagrant group, conflicts with slurm
@@ -27,13 +45,8 @@
         - { gid: 9500, group: centos }
         - { gid: 9600, group: vagrant }
 
-    - name: Install Epel
-      yum:
-        name:
-          - epel-release
-        state: latest
-        update_cache: yes
-
+  handlers:
+    - import_tasks: handlers/main.yml
   tasks:
 
     - import_tasks: "tasks/main.yml"
